@@ -1,43 +1,84 @@
-<script>
-  // Check kalau tiada localStorage nama (bukan staff)
-  if (!localStorage.getItem("nama")) {
-    window.location.href = "login.html";
-  }
 
-  document.getElementById("namaDisplay").innerText = localStorage.getItem("nama") || "Guest";
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Check In / Check Out with Location</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; text-align: center; }
+    button { margin: 10px; padding: 10px; width: 80%; max-width: 300px; }
+    .message { margin-top: 20px; font-size: 18px; color: green; }
+  </style>
+</head>
+<body>
+  <h2>Welcome, <span id="namaDisplay"></span></h2>
 
-  function sendData(action) {
-    const nama = localStorage.getItem("nama");
-    const staffid = localStorage.getItem("staffid");
-    if (!nama || !staffid) {
-      alert("Missing login details!");
+  <button onclick="sendData('Check In')">Check In</button>
+  <button onclick="sendData('Check Out')">Check Out</button>
+
+  <div id="message" class="message"></div>
+
+  <script>
+    if (!localStorage.getItem("nama")) {
       window.location.href = "login.html";
-      return;
     }
 
-    const timestamp = new Date().toISOString();
-    const bodyData = {
-      nama: nama,
-      staffid: staffid,
-      action: action,
-      timestamp: timestamp
-    };
+    document.getElementById("namaDisplay").innerText = localStorage.getItem("nama") || "Guest";
 
-    fetch("https://api.sheetbest.com/sheets/a34b2f38-cd4d-4b91-8306-30b3daa64be7", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(bodyData)
-    })
-    .then(response => {
-      if (response.ok) {
-        document.getElementById("message").innerHTML = `✅ ${action} Successful!<br>Time: ${new Date().toLocaleString()}`;
-      } else {
-        alert("Failed to record " + action);
+    function sendData(action) {
+      const nama = localStorage.getItem("nama");
+      const staffid = localStorage.getItem("staffid");
+
+      if (!nama || !staffid) {
+        alert("Missing login details!");
+        window.location.href = "login.html";
+        return;
       }
-    })
-    .catch(error => {
-      alert("Error connecting to server.");
-      console.error(error);
-    });
-  }
-</script>
+
+      if (!navigator.geolocation) {
+        alert("Geolocation is not supported by your browser");
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(success, error);
+
+      function success(position) {
+        const latitude = position.coords.latitude;
+        const longitude = position.coords.longitude;
+        const timestamp = new Date().toISOString();
+
+        const bodyData = {
+          nama: nama,
+          staffid: staffid,
+          action: action,
+          timestamp: timestamp,
+          latitude: latitude,
+          longitude: longitude
+        };
+
+        fetch("https://api.sheetbest.com/sheets/a34b2f38-cd4d-4b91-8306-30b3daa64be7", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(bodyData)
+        })
+        .then(response => {
+          if (response.ok) {
+            document.getElementById("message").innerHTML = `✅ ${action} Successful!<br>Time: ${new Date().toLocaleString()}<br>Location: ${latitude}, ${longitude}`;
+          } else {
+            alert("Failed to record " + action);
+          }
+        })
+        .catch(error => {
+          alert("Error connecting to server.");
+          console.error(error);
+        });
+      }
+
+      function error() {
+        alert("Unable to retrieve your location");
+      }
+    }
+  </script>
+</body>
+</html>
