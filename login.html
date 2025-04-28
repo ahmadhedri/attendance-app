@@ -8,26 +8,43 @@
   <style>
     body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; }
     input, button { margin: 10px; padding: 10px; width: 80%; max-width: 300px; }
+    .error { color: red; margin-top: 10px; }
   </style>
 </head>
 <body>
-  <h2>Staff Login</h2>
-  <input type="text" id="username" placeholder="Enter your Name"><br>
-  <input type="text" id="staffid" placeholder="Enter your Staff ID"><br>
-  <button onclick="login()">Login</button>
 
-  <script>
-    function login() {
-      const username = document.getElementById("username").value;
-      const staffid = document.getElementById("staffid").value;
-      if (!username || !staffid) {
-        alert("Please enter both Name and Staff ID!");
-        return;
-      }
-      localStorage.setItem("nama", username);
-      localStorage.setItem("staffid", staffid);
-      window.location.href = "checkin.html";
-    }
-  </script>
+<h2>Staff / Admin Login</h2>
+
+<input type="text" id="username" placeholder="Enter your Name or Admin Username"><br>
+<input type="password" id="password" placeholder="Enter your Staff ID or Admin Password"><br>
+
+<button onclick="login()">Login</button>
+
+<div id="error" class="error"></div>
+
+<script>
+function login() {
+  const username = document.getElementById("username").value.trim();
+  const password = document.getElementById("password").value.trim();
+  const errorDiv = document.getElementById("error");
+
+  if (!username || !password) {
+    errorDiv.textContent = "Please fill in both fields!";
+    return;
+  }
+
+  // Admin login
+  if (username.toLowerCase() === "admin" && password === "admin123") {
+    window.location.href = "admin.html";
+    return;
+  }
+
+  // Staff login
+  localStorage.setItem("nama", username);
+  localStorage.setItem("staffid", password);
+  window.location.href = "checkin.html";
+}
+</script>
+
 </body>
 </html>
