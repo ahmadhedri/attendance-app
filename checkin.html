@@ -1,0 +1,60 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Check In / Check Out</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; text-align: center; }
+    button { margin: 10px; padding: 10px; width: 80%; max-width: 300px; }
+    .message { margin-top: 20px; font-size: 18px; color: green; }
+  </style>
+</head>
+<body>
+  <h2>Welcome, <span id="namaDisplay"></span></h2>
+
+  <button onclick="sendData('Check In')">Check In</button>
+  <button onclick="sendData('Check Out')">Check Out</button>
+
+  <div id="message" class="message"></div>
+
+  <script>
+    document.getElementById("namaDisplay").innerText = localStorage.getItem("nama") || "Guest";
+
+    function sendData(action) {
+      const nama = localStorage.getItem("nama");
+      const staffid = localStorage.getItem("staffid");
+      if (!nama || !staffid) {
+        alert("Missing login details!");
+        return;
+      }
+
+      const timestamp = new Date().toISOString();
+      const bodyData = {
+        nama: nama,
+        staffid: staffid,
+        action: action,
+        timestamp: timestamp
+      };
+
+      fetch("https://api.sheetbest.com/sheets/a34b2f38-cd4d-4b91-8306-30b3daa64be7", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(bodyData)
+      })
+      .then(response => {
+        if (response.ok) {
+          document.getElementById("message").innerHTML = `✅ ${action} Successful!<br>Time: ${new Date().toLocaleString()}`;
+        } else {
+          alert("Failed to record " + action);
+        }
+      })
+      .catch(error => {
+        alert("Error connecting to server.");
+        console.error(error);
+      });
+    }
+  </script>
+</body>
+</html>

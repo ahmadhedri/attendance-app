@@ -1,0 +1,33 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login Page</title>
+  <style>
+    body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; }
+    input, button { margin: 10px; padding: 10px; width: 80%; max-width: 300px; }
+  </style>
+</head>
+<body>
+  <h2>Staff Login</h2>
+  <input type="text" id="username" placeholder="Enter your Name"><br>
+  <input type="text" id="staffid" placeholder="Enter your Staff ID"><br>
+  <button onclick="login()">Login</button>
+
+  <script>
+    function login() {
+      const username = document.getElementById("username").value;
+      const staffid = document.getElementById("staffid").value;
+      if (!username || !staffid) {
+        alert("Please enter both Name and Staff ID!");
+        return;
+      }
+      localStorage.setItem("nama", username);
+      localStorage.setItem("staffid", staffid);
+      window.location.href = "checkin.html";
+    }
+  </script>
+</body>
+</html>
