@@ -3,12 +3,48 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Check In/Out</title>
+  <title>Check In / Check Out</title>
+  <script>
+    function sendData(action) {
+      const nama = document.getElementById("nama").value;
+      const staffid = document.getElementById("staffid").value;
+      
+      if (!nama || !staffid) {
+        alert("Please enter your Name and Staff ID first!");
+        return;
+      }
+      
+      fetch("https://api.sheetbest.com/sheets/a34b2f38-cd4d-4b91-8306-30b3daa64be7", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          nama: nama,
+          staffid: staffid,
+          action: action,
+          timestamp: new Date().toISOString()
+        })
+      })
+      .then(response => {
+        alert(action + " recorded successfully!");
+      })
+      .catch(error => {
+        alert("Error recording " + action);
+        console.error(error);
+      });
+    }
+  </script>
 </head>
 <body>
-  <h2>Welcome! Please Check In or Check Out</h2>
-  <button onclick="alert('Checked In!')">Check In</button><br><br>
-  <button onclick="alert('Checked Out!')">Check Out</button><br><br>
+  <h2>Staff Check In / Check Out</h2>
+
+  <input type="text" id="nama" placeholder="Enter your Name"><br><br>
+  <input type="text" id="staffid" placeholder="Enter your Staff ID"><br><br>
+
+  <button onclick="sendData('Check In')">Check In</button><br><br>
+  <button onclick="sendData('Check Out')">Check Out</button><br><br>
+
   <a href="login.html">Logout</a>
 </body>
 </html>
