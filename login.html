@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -35,6 +34,7 @@ function login() {
 
   // Admin login
   if (username.toLowerCase() === "admin" && password === "admin123") {
+    // Jangan simpan nama ke localStorage
     window.location.href = "admin.html";
     return;
   }
