@@ -15,14 +15,19 @@
 
 <h2>Staff / Admin Login</h2>
 
-<input type="text" id="username" placeholder="Enter your Name or Admin Username"><br>
-<input type="password" id="password" placeholder="Enter your Staff ID or Admin Password"><br>
+<input type="text" id="username" placeholder="Enter your Name"><br>
+<input type="password" id="password" placeholder="Enter your Staff ID"><br>
 
 <button onclick="login()">Login</button>
 
 <div id="error" class="error"></div>
 
 <script>
+const validUsers = [
+  "Mizi", "Farhan", "Azhan", "Amin", "Wan", "Faris", "Afiq", "Hedri", "Pari", "Malik"
+];
+const validStaffId = "12345";
+
 function login() {
   const username = document.getElementById("username").value.trim();
   const password = document.getElementById("password").value.trim();
@@ -40,9 +45,13 @@ function login() {
   }
 
   // Staff login
-  localStorage.setItem("nama", username);
-  localStorage.setItem("staffid", password);
-  window.location.href = "checkin.html";
+  if (validUsers.includes(username) && password === validStaffId) {
+    localStorage.setItem("nama", username);
+    localStorage.setItem("staffid", password);
+    window.location.href = "checkin.html";
+  } else {
+    errorDiv.textContent = "Invalid name or staff ID!";
+  }
 }
 </script>
 
