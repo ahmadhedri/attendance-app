@@ -15,7 +15,6 @@
 
 <h2>Welcome, <span id="namaDisplay"></span></h2>
 
-<!-- Input baru -->
 <input type="text" id="tapakProjek" placeholder="Tapak Projek" required><br>
 <input type="text" id="jenisKerja" placeholder="Jenis Kerja" required><br>
 <input type="text" id="lainLain" placeholder="Lain-lain (optional)"><br>
@@ -67,22 +66,32 @@ function sendData(action) {
     const longitude = position.coords.longitude;
     const timestamp = getFormattedTime();
 
-    const bodyData = { nama, staffid, tapakProjek, jenisKerja, lainLain, action, timestamp, latitude, longitude };
+    fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}`)
+    .then(res => res.json())
+    .then(data => {
+      const locationName = data.address.city || data.address.town || data.address.village || data.address.state || "Unknown Location";
 
-    fetch("https://api.sheetbest.com/sheets/a34b2f38-cd4d-4b91-8306-30b3daa64be7", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(bodyData)
-    })
-    .then(response => {
-      if (response.ok) {
-        document.getElementById("message").innerHTML = `✅ ${action} Successful!<br>Time: ${timestamp}`;
-      } else {
-        alert("Failed to record " + action);
-      }
+      const bodyData = { nama, staffid, tapakProjek, jenisKerja, lainLain, action, timestamp, latitude, longitude, locationName };
+
+      fetch("https://api.sheetbest.com/sheets/a34b2f38-cd4d-4b91-8306-30b3daa64be7", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(bodyData)
+      })
+      .then(response => {
+        if (response.ok) {
+          document.getElementById("message").innerHTML = `✅ ${action} Successful!<br>Time: ${timestamp}<br>Location: ${locationName}`;
+        } else {
+          alert("Failed to record " + action);
+        }
+      })
+      .catch(error => {
+        alert("Error connecting to server.");
+        console.error(error);
+      });
     })
     .catch(error => {
-      alert("Error connecting to server.");
+      alert("Failed to retrieve location name.");
       console.error(error);
     });
 
