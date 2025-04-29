@@ -34,32 +34,55 @@ function sendData(action) {
     return;
   }
 
-  const now = new Date();
-  const options = {
-    day: '2-digit', month: '2-digit', year: 'numeric',
-    hour: '2-digit', minute: '2-digit', second: '2-digit',
-    hour12: true
-  };
-  const timestamp = now.toLocaleString('en-GB', options).replace(',', '');
+  if (!navigator.geolocation) {
+    alert("Geolocation not supported by your device.");
+    return;
+  }
 
-  const bodyData = { nama, staffid, action, timestamp };
+  navigator.geolocation.getCurrentPosition(
+    position => {
+      const now = new Date();
+      const options = {
+        day: '2-digit', month: '2-digit', year: 'numeric',
+        hour: '2-digit', minute: '2-digit', second: '2-digit',
+        hour12: true
+      };
+      const timestamp = now.toLocaleString('en-GB', options).replace(',', '');
 
-  fetch("https://api.sheetbest.com/sheets/a34b2f38-cd4d-4b91-8306-30b3daa64be7", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(bodyData)
-  })
-  .then(response => {
-    if (response.ok) {
-      document.getElementById("message").innerHTML = `✅ ${action} Successful!<br>Time: ${timestamp}`;
-    } else {
-      alert("Failed to record " + action);
+      const latitude = position.coords.latitude;
+      const longitude = position.coords.longitude;
+
+      const bodyData = { 
+        nama, 
+        staffid, 
+        action, 
+        timestamp, 
+        latitude, 
+        longitude 
+      };
+
+      fetch("https://api.sheetbest.com/sheets/a34b2f38-cd4d-4b91-8306-30b3daa64be7", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(bodyData)
+      })
+      .then(response => {
+        if (response.ok) {
+          document.getElementById("message").innerHTML = `✅ ${action} Successful!<br>Time: ${timestamp}`;
+        } else {
+          alert("Failed to record " + action);
+        }
+      })
+      .catch(error => {
+        alert("Error connecting to server.");
+        console.error(error);
+      });
+    },
+    error => {
+      alert("Unable to retrieve your location. Please allow location permission.");
+      console.error(error);
     }
-  })
-  .catch(error => {
-    alert("Error connecting to server.");
-    console.error(error);
-  });
+  );
 }
 
 function logout() {
