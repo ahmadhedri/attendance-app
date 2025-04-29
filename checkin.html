@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,7 +6,7 @@
   <title>Check In / Check Out</title>
   <style>
     body { font-family: Arial, sans-serif; padding: 20px; text-align: center; }
-    button { margin: 10px; padding: 10px; width: 80%; max-width: 300px; }
+    input, button { margin: 10px; padding: 10px; width: 80%; max-width: 300px; }
     .message { margin-top: 20px; font-size: 18px; color: green; }
     .logout { margin-top: 30px; background-color: red; color: white; }
   </style>
@@ -15,6 +14,11 @@
 <body>
 
 <h2>Welcome, <span id="namaDisplay"></span></h2>
+
+<!-- Input baru -->
+<input type="text" id="tapakProjek" placeholder="Tapak Projek" required><br>
+<input type="text" id="jenisKerja" placeholder="Jenis Kerja" required><br>
+<input type="text" id="lainLain" placeholder="Lain-lain (optional)"><br>
 
 <button onclick="sendData('Check In')">Check In</button>
 <button onclick="sendData('Check Out')">Check Out</button>
@@ -39,8 +43,17 @@ function getFormattedTime() {
 function sendData(action) {
   const nama = localStorage.getItem("nama");
   const staffid = localStorage.getItem("staffid");
+  const tapakProjek = document.getElementById("tapakProjek").value.trim();
+  const jenisKerja = document.getElementById("jenisKerja").value.trim();
+  const lainLain = document.getElementById("lainLain").value.trim();
+
   if (!nama || !staffid) {
     alert("Missing login details!");
+    return;
+  }
+
+  if (!tapakProjek || !jenisKerja) {
+    alert("Sila isi Tapak Projek dan Jenis Kerja");
     return;
   }
 
@@ -54,7 +67,7 @@ function sendData(action) {
     const longitude = position.coords.longitude;
     const timestamp = getFormattedTime();
 
-    const bodyData = { nama, staffid, action, timestamp, latitude, longitude };
+    const bodyData = { nama, staffid, tapakProjek, jenisKerja, lainLain, action, timestamp, latitude, longitude };
 
     fetch("https://api.sheetbest.com/sheets/a34b2f38-cd4d-4b91-8306-30b3daa64be7", {
       method: "POST",
