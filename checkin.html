@@ -51,6 +51,7 @@ function sendData(action) {
 
       const latitude = position.coords.latitude;
       const longitude = position.coords.longitude;
+      const google_maps_link = `https://www.google.com/maps?q=${latitude},${longitude}`;
 
       const bodyData = { 
         nama, 
@@ -58,7 +59,8 @@ function sendData(action) {
         action, 
         timestamp, 
         latitude, 
-        longitude 
+        longitude,
+        google_maps_link
       };
 
       fetch("https://api.sheetbest.com/sheets/a34b2f38-cd4d-4b91-8306-30b3daa64be7", {
