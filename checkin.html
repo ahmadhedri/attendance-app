@@ -1,15 +1,39 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Check In / Check Out</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; text-align: center; }
+    button { margin: 10px; padding: 10px; width: 80%; max-width: 300px; }
+    .message { margin-top: 20px; font-size: 18px; color: green; }
+    .logout { margin-top: 30px; background-color: red; color: white; }
+  </style>
+</head>
+<body>
+
+<h2>Welcome, <span id="namaDisplay"></span></h2>
+
+<button onclick="sendData('Check In')">Check In</button>
+<button onclick="sendData('Check Out')">Check Out</button>
+
+<div id="message" class="message"></div>
+
+<button class="logout" onclick="logout()">Logout</button>
+
 <script>
 document.getElementById("namaDisplay").innerText = localStorage.getItem("nama") || "Guest";
 
 function getFormattedTime() {
   const now = new Date();
-  const options = {
+  return now.toLocaleString('en-US', {
     year: 'numeric', month: 'long', day: 'numeric',
     hour: 'numeric', minute: 'numeric', second: 'numeric',
     hour12: true,
     timeZone: 'Asia/Kuala_Lumpur'
-  };
-  return now.toLocaleString('en-US', options);
+  });
 }
 
 function sendData(action) {
@@ -59,3 +83,6 @@ function logout() {
   window.location.href = "login.html";
 }
 </script>
+
+</body>
+</html>
