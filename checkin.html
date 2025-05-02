@@ -36,6 +36,23 @@ document.getElementById("namaDisplay").innerText = localStorage.getItem("nama") 
 
 let map, marker;
 
+function initMap() {
+  map = L.map('map').setView([0, 0], 2); // Default view
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap contributors'
+  }).addTo(map);
+  marker = L.marker([0, 0]).addTo(map).bindPopup("Lokasi belum tersedia").openPopup();
+
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(position => {
+      const lat = position.coords.latitude;
+      const lon = position.coords.longitude;
+      map.setView([lat, lon], 16);
+      marker.setLatLng([lat, lon]).bindPopup("Anda di sini").openPopup();
+    });
+  }
+}
+
 function getFormattedTime() {
   const now = new Date();
   return now.toLocaleString('en-US', {
@@ -44,19 +61,6 @@ function getFormattedTime() {
     hour12: true,
     timeZone: 'Asia/Kuala_Lumpur'
   });
-}
-
-function showMap(lat, lon) {
-  if (!map) {
-    map = L.map('map').setView([lat, lon], 16);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap contributors'
-    }).addTo(map);
-    marker = L.marker([lat, lon]).addTo(map);
-  } else {
-    map.setView([lat, lon], 16);
-    marker.setLatLng([lat, lon]);
-  }
 }
 
 function sendData(action) {
@@ -85,7 +89,8 @@ function sendData(action) {
     const latitude = position.coords.latitude;
     const longitude = position.coords.longitude;
     const timestamp = getFormattedTime();
-    showMap(latitude, longitude);
+    map.setView([latitude, longitude], 16);
+    marker.setLatLng([latitude, longitude]);
 
     fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}`)
     .then(res => res.json())
@@ -125,6 +130,8 @@ function logout() {
   localStorage.clear();
   window.location.href = "login.html";
 }
+
+window.onload = initMap;
 </script>
 
 </body>
