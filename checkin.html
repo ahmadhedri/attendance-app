@@ -1,115 +1,140 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Check In / Check Out</title>
+  <!-- Leaflet CSS -->
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    crossorigin=""
+  />
   <style>
     body { font-family: Arial, sans-serif; padding: 20px; text-align: center; }
     input, button { margin: 10px; padding: 10px; width: 80%; max-width: 300px; }
     .message { margin-top: 20px; font-size: 18px; color: green; }
     .logout { margin-top: 30px; background-color: red; color: white; }
-    #map { height: 200px; margin-top: 20px; }
+    #map { height: 250px; margin-top: 20px; }
   </style>
 </head>
 <body>
 
 <h2>Welcome, <span id="namaDisplay"></span></h2>
 
-<input id="tapak" placeholder="Tapak projek" />
-<input id="kerja" placeholder="Jenis kerja" />
-<input id="lain" placeholder="Lain-lain (optional)" />
+<input type="text" id="tapakProjek" placeholder="Tapak Projek" required><br>
+<input type="text" id="jenisKerja" placeholder="Jenis Kerja" required><br>
+<input type="text" id="lainLain" placeholder="Lain-lain (optional)"><br>
 
 <button onclick="sendData('Check In')">Check In</button>
 <button onclick="sendData('Check Out')">Check Out</button>
 
-<div id="map"></div>
 <div id="message" class="message"></div>
+<div id="map"></div>
 
 <button class="logout" onclick="logout()">Logout</button>
 
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+  integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+  crossorigin=""></script>
+
 <script>
-document.getElementById("namaDisplay").innerText = localStorage.getItem("nama") || "Guest";
+  document.getElementById("namaDisplay").innerText = localStorage.getItem("nama") || "Guest";
 
-function getFormattedTime() {
-  const now = new Date();
-  return now.toLocaleString('en-MY', {
-    year: 'numeric', month: 'long', day: 'numeric',
-    hour: 'numeric', minute: 'numeric', second: 'numeric',
-    hour12: true, timeZone: 'Asia/Kuala_Lumpur'
-  });
-}
+  let map, marker;
 
-function sendData(action) {
-  const nama = localStorage.getItem("nama");
-  const staffid = localStorage.getItem("staffid");
-  const tapak = document.getElementById("tapak").value;
-  const kerja = document.getElementById("kerja").value;
-  const lain = document.getElementById("lain").value;
-
-  if (!nama || !staffid) {
-    alert("Missing login details!");
-    return;
+  function initMap(lat, lng) {
+    map = L.map('map').setView([lat, lng], 16);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+    marker = L.marker([lat, lng]).addTo(map).bindPopup("Anda di sini").openPopup();
   }
 
-  if (!navigator.geolocation) {
-    alert("Geolocation not supported!");
-    return;
-  }
-
-  navigator.geolocation.getCurrentPosition(position => {
-    const latitude = position.coords.latitude;
-    const longitude = position.coords.longitude;
-    const timestamp = getFormattedTime();
-
-    const bodyData = { nama, staffid, action, timestamp, latitude, longitude, tapak, kerja, lain };
-
-    fetch("https://api.sheetbest.com/sheets/a34b2f38-cd4d-4b91-8306-30b3daa64be7", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(bodyData)
-    })
-    .then(response => {
-      if (response.ok) {
-        document.getElementById("message").innerHTML =
-          `✅ ${action} Successful!<br>Time: ${timestamp}`;
-        showMap(latitude, longitude);
-      } else {
-        alert("Failed to record " + action);
-      }
-    })
-    .catch(error => {
-      alert("Server error.");
-      console.error(error);
+  function getFormattedTime() {
+    const now = new Date();
+    return now.toLocaleString('en-MY', {
+      year: 'numeric', month: 'long', day: 'numeric',
+      hour: 'numeric', minute: 'numeric', second: 'numeric',
+      hour12: true, timeZone: 'Asia/Kuala_Lumpur'
     });
-  }, () => {
-    alert("Unable to retrieve your location");
-  });
-}
+  }
 
-function showMap(lat, lng) {
-  const map = new google.maps.Map(document.getElementById("map"), {
-    zoom: 16,
-    center: { lat, lng }
-  });
-  new google.maps.Marker({
-    position: { lat, lng },
-    map: map
-  });
-}
+  function sendData(action) {
+    const nama = localStorage.getItem("nama");
+    const staffid = localStorage.getItem("staffid");
+    const tapakProjek = document.getElementById("tapakProjek").value.trim();
+    const jenisKerja = document.getElementById("jenisKerja").value.trim();
+    const lainLain = document.getElementById("lainLain").value.trim();
 
-function logout() {
-  localStorage.clear();
-  window.location.href = "login.html";
-}
-</script>
+    if (!nama || !staffid) {
+      alert("Missing login details!");
+      return;
+    }
 
-<script async
-  src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&callback=initMap">
-</script>
-<script>
-function initMap() {}
+    if (!tapakProjek || !jenisKerja) {
+      alert("Sila isi Tapak Projek dan Jenis Kerja");
+      return;
+    }
+
+    if (!navigator.geolocation) {
+      alert("Geolocation is not supported by your browser.");
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(position => {
+      const latitude = position.coords.latitude;
+      const longitude = position.coords.longitude;
+      const timestamp = getFormattedTime();
+
+      if (!map) {
+        initMap(latitude, longitude);
+      } else {
+        map.setView([latitude, longitude], 16);
+        marker.setLatLng([latitude, longitude]);
+      }
+
+      fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}`)
+      .then(res => res.json())
+      .then(data => {
+        const locationName = data.address.city || data.address.town || data.address.village || data.address.state || "Unknown Location";
+
+        const bodyData = { nama, staffid, tapakProjek, jenisKerja, lainLain, action, timestamp, latitude, longitude, locationName };
+
+        fetch("https://api.sheetbest.com/sheets/a34b2f38-cd4d-4b91-8306-30b3daa64be7", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(bodyData)
+        })
+        .then(response => {
+          if (response.ok) {
+            document.getElementById("message").innerHTML = `✅ ${action} Successful!<br>Time: ${timestamp}<br>Location: ${locationName}`;
+          } else {
+            alert("Failed to record " + action);
+          }
+        })
+        .catch(error => {
+          alert("Error connecting to server.");
+          console.error(error);
+        });
+      })
+      .catch(error => {
+        alert("Failed to retrieve location name.");
+        console.error(error);
+      });
+
+    }, () => {
+      alert("Unable to retrieve your location");
+    });
+  }
+
+  function logout() {
+    localStorage.clear();
+    window.location.href = "login.html";
+  }
 </script>
 
 </body>
