@@ -4,6 +4,17 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Check In / Check Out</title>
+
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json" />
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('service-worker.js')
+        .then(() => console.log("✅ Service Worker registered"))
+        .catch(err => console.error("❌ SW error:", err));
+    }
+  </script>
+
   <!-- Leaflet CSS -->
   <link
     rel="stylesheet"
@@ -49,7 +60,7 @@
     map = L.map('map').setView([lat, lng], 16);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      attribution: '&copy; OpenStreetMap contributors'
     }).addTo(map);
     marker = L.marker([lat, lng]).addTo(map).bindPopup("Anda di sini").openPopup();
   }
@@ -100,7 +111,7 @@
       fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}`)
       .then(res => res.json())
       .then(data => {
-        const locationName = data.address.city || data.address.town || data.address.village || data.address.state || "Unknown Location";
+        const locationName = data.address.city || data.address.town || data.address.village || data.address.state || "Unknown";
 
         const bodyData = { nama, staffid, tapakProjek, jenisKerja, lainLain, action, timestamp, latitude, longitude, locationName };
 
