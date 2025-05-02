@@ -1,14 +1,17 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Check In / Check Out</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
   <style>
     body { font-family: Arial, sans-serif; padding: 20px; text-align: center; }
     input, button { margin: 10px; padding: 10px; width: 80%; max-width: 300px; }
     .message { margin-top: 20px; font-size: 18px; color: green; }
     .logout { margin-top: 30px; background-color: red; color: white; }
+    #map { height: 250px; margin-top: 20px; }
   </style>
 </head>
 <body>
@@ -23,11 +26,15 @@
 <button onclick="sendData('Check Out')">Check Out</button>
 
 <div id="message" class="message"></div>
+<div id="map"></div>
 
 <button class="logout" onclick="logout()">Logout</button>
 
+<script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
 <script>
 document.getElementById("namaDisplay").innerText = localStorage.getItem("nama") || "Guest";
+
+let map, marker;
 
 function getFormattedTime() {
   const now = new Date();
@@ -37,6 +44,19 @@ function getFormattedTime() {
     hour12: true,
     timeZone: 'Asia/Kuala_Lumpur'
   });
+}
+
+function showMap(lat, lon) {
+  if (!map) {
+    map = L.map('map').setView([lat, lon], 16);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+    marker = L.marker([lat, lon]).addTo(map);
+  } else {
+    map.setView([lat, lon], 16);
+    marker.setLatLng([lat, lon]);
+  }
 }
 
 function sendData(action) {
@@ -65,6 +85,7 @@ function sendData(action) {
     const latitude = position.coords.latitude;
     const longitude = position.coords.longitude;
     const timestamp = getFormattedTime();
+    showMap(latitude, longitude);
 
     fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}`)
     .then(res => res.json())
