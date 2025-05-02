@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Check In / Check Out</title>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" integrity="sha384-QVJDDkYh4M8h6KyILQOaU9Z7z9Fx5rwVho18wTnMJHeDZ7lOrUkRpgYZ3fqnHg7F" crossorigin=""/>
   <style>
     body { font-family: Arial, sans-serif; padding: 20px; text-align: center; }
     input, button { margin: 10px; padding: 10px; width: 80%; max-width: 300px; }
@@ -30,14 +30,14 @@
 
 <button class="logout" onclick="logout()">Logout</button>
 
-<script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js" integrity="sha384-i9Pg0EgfZcYDaF3n7/3D0CUJUtBWWTS4kzOnMsmU5jl+mc5lhKP0kI3Q0oN25yZm" crossorigin=""></script>
 <script>
 document.getElementById("namaDisplay").innerText = localStorage.getItem("nama") || "Guest";
 
 let map, marker;
 
 function initMap() {
-  map = L.map('map').setView([0, 0], 2); // Default view
+  map = L.map('map').setView([0, 0], 2); // default view
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; OpenStreetMap contributors'
   }).addTo(map);
